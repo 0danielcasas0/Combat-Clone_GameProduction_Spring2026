@@ -1,47 +1,63 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
 public class Bullet2D : MonoBehaviour
 {
-    [Header("Settings")]
     public float lifeTime = 3f;
 
-    [HideInInspector]
-    public int ownerPlayerId;
+    // Optional: keep speed consistent after bounces
+    public float desiredSpeed = 8f;
+
+    // Optional: limit ricochets
+    public int maxBounces = 8;
+
+    [HideInInspector] public int ownerPlayerId;
+
+    Rigidbody2D rb;
+    int bounceCount;
+
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
 
     void Start()
     {
-        // Auto-destroy after time so bullets don't live forever
         Destroy(gameObject, lifeTime);
+    }
+
+    void FixedUpdate()
+    {
+        // Keep constant speed (optional but makes ricochets feel �arcade�)
+        if (rb.linearVelocity.sqrMagnitude > 0.001f)
+            rb.linearVelocity = rb.linearVelocity.normalized * desiredSpeed;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Try to find a tank on what we hit
-        TankHitReaction hit =
-            collision.collider.GetComponentInParent<TankHitReaction>();
+        // If we hit a tank, do hit reaction and destroy bullet
+        TankHitReaction hit = collision.collider.GetComponentInParent<TankHitReaction>();
+        TankIdentity identity = collision.collider.GetComponentInParent<TankIdentity>();
 
-        TankIdentity identity =
-            collision.collider.GetComponentInParent<TankIdentity>();
-
-        // If we hit a tank
         if (hit != null && identity != null)
         {
-            // Prevent self-hits (optional safety)
             if (identity.playerId != ownerPlayerId)
             {
-                // Direction from bullet to tank (for knockback)
-                Vector2 hitDir =
-                    (identity.transform.position - transform.position).normalized;
-
+                Vector2 hitDir = (identity.transform.position - transform.position).normalized;
                 hit.OnHit(hitDir);
             }
 
-            // Bullet always dies on impact
             Destroy(gameObject);
             return;
         }
 
-        // Hit anything else (wall, obstacle, etc)
-        Destroy(gameObject);
+        // Otherwise we hit a wall/obstacle: bounce instead of destroying
+        bounceCount++;
+        if (bounceCount > maxBounces)
+        {
+            Destroy(gameObject);
+        }
+        // No Destroy here = physics material can do its bounce
     }
 }
