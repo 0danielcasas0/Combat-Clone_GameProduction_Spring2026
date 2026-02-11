@@ -46,6 +46,8 @@ public class Bullet2D : MonoBehaviour
             {
                 Vector2 hitDir = (identity.transform.position - transform.position).normalized;
                 hit.OnHit(hitDir);
+                // 2) award point
+                GameManagerCombat.Instance?.RegisterHit(victimPlayerId: identity.playerId, attackerPlayerId: ownerPlayerId);
             }
 
             Destroy(gameObject);
@@ -60,4 +62,5 @@ public class Bullet2D : MonoBehaviour
         }
         // No Destroy here = physics material can do its bounce
     }
+
 }

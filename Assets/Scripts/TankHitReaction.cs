@@ -1,27 +1,37 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class TankHitReaction : MonoBehaviour
 {
+    [Header("Knockback")] 
     public float knockbackForce = 6f;
 
     [Header("Spin")]
     public float spinSpeed = -1080f; // degrees per second (negative = clockwise)
     public float stunTime = 0.6f;
 
+    [Header("Damping")]
+    public float angularDragWhileStunned = 3f;
+
     Rigidbody2D rb;
-    TankController controller;
+
+    TankController playerController;
+    TankAIController aiController;
 
     bool stunned;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        controller = GetComponent<TankController>();
 
-        // Helps spinning stop nicely
-        rb.angularDamping = 3f;
+        // Helps spins settle nicely
+        rb.angularDamping = angularDragWhileStunned;
+
+        // Cache whichever controller(s) might exist on this tank
+        playerController = GetComponent<TankController>();
+        aiController = GetComponent<TankAIController>();
     }
 
     public void OnHit(Vector2 hitDirection)
@@ -35,15 +45,15 @@ public class TankHitReaction : MonoBehaviour
     {
         stunned = true;
 
-        // Disable control
-        if (controller != null)
-            controller.enabled = false;
+        // Disable control so it doesn't overwrite spin/knockback
+        if (playerController != null) playerController.enabled = false;
+        if (aiController != null) aiController.enabled = false;
 
-        // Reset motion
+        // Reset motion then apply hit
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
-        // Knockback (away from bullet)
+        // Knockback away from impact
         rb.AddForce(hitDir * knockbackForce, ForceMode2D.Impulse);
 
         // Start clockwise spin
@@ -56,9 +66,9 @@ public class TankHitReaction : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
 
-        // Restore control
-        if (controller != null)
-            controller.enabled = true;
+        // Re-enable control
+        if (playerController != null) playerController.enabled = true;
+        if (aiController != null) aiController.enabled = true;
 
         stunned = false;
     }

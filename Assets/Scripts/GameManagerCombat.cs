@@ -9,15 +9,16 @@ public class GameManagerCombat : MonoBehaviour
     public GameObject player1;
     public GameObject player2;
 
-    [Header("Spawns")]
-    public Transform p1Spawn;
-    public Transform p2Spawn;
+    [Header("Rules")]
+    public int pointsToWin = 3;
 
     [Header("UI")]
-    public TMP_Text scoreText; // use TextMeshPro
+    public TMP_Text scoreText;
+    public TMP_Text messageText; // optional (e.g., "P1 Wins!")
 
     int p1Score;
     int p2Score;
+    bool gameOver;
 
     void Awake()
     {
@@ -27,41 +28,72 @@ public class GameManagerCombat : MonoBehaviour
 
     void Start()
     {
+        if (messageText != null) messageText.text = "";
         UpdateUI();
     }
 
-    public void OnTankKilled(int victimPlayerId, int killerPlayerId)
+    // Call this once per HIT that should score
+    public void RegisterHit(int victimPlayerId, int attackerPlayerId)
     {
-        // Score
-        if (killerPlayerId == 1) p1Score++;
-        else if (killerPlayerId == 2) p2Score++;
+        if (gameOver) return;
+        if (victimPlayerId == attackerPlayerId) return; // no self score
 
-        // Respawn victim
-        if (victimPlayerId == 1) Respawn(player1, p1Spawn);
-        else if (victimPlayerId == 2) Respawn(player2, p2Spawn);
+        // Award point
+        if (attackerPlayerId == 1) p1Score++;
+        else if (attackerPlayerId == 2) p2Score++;
 
         UpdateUI();
+
+        // Check win condition
+        int winner = GetWinner();
+        if (winner != 0)
+        {
+            EndGame(winner);
+            return;
+        }
+
+
     }
 
-    void Respawn(GameObject tank, Transform spawn)
+    int GetWinner()
     {
-        if (tank == null || spawn == null) return;
+        if (p1Score >= pointsToWin) return 1;
+        if (p2Score >= pointsToWin) return 2;
+        return 0;
+    }
 
-        // Reset physics + teleport
+    void EndGame(int winnerPlayerId)
+    {
+        gameOver = true;
+
+        if (messageText != null)
+            messageText.text = $"P{winnerPlayerId} Wins!";
+
+        DisableTankControls(player1);
+        DisableTankControls(player2);
+    }
+
+    void DisableTankControls(GameObject tank)
+    {
+        if (tank == null) return;
+
+        // Stop physics completely (prevents movement even if some script is still running)
         var rb = tank.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
-            rb.position = spawn.position;
-            rb.rotation = spawn.eulerAngles.z;
+            rb.simulated = false; // <- hard stop
         }
-        else
-        {
-            tank.transform.position = spawn.position;
-            tank.transform.rotation = spawn.rotation;
-        }
+
+        // Disable known controllers anywhere on the tank object (root or children)
+        foreach (var c in tank.GetComponentsInChildren<TankController>(true))
+            c.enabled = false;
+
+        foreach (var ai in tank.GetComponentsInChildren<TankAIController>(true))
+            ai.enabled = false;
     }
+
 
     void UpdateUI()
     {

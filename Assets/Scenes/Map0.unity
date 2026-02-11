@@ -747,9 +747,9 @@ GameObject:
   - component: {fileID: 677974321}
   - component: {fileID: 677974320}
   - component: {fileID: 677974319}
-  - component: {fileID: 677974318}
   - component: {fileID: 677974324}
   - component: {fileID: 677974323}
+  - component: {fileID: 677974325}
   m_Layer: 0
   m_Name: Player2
   m_TagString: Untagged
@@ -757,29 +757,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &677974318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 677974317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc6e60735cd33224882df55ad8e9c693, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  moveSpeed: 4
-  turnSpeed: 180
-  bulletPrefab: {fileID: 7613528972467514935, guid: aed3b1e491b2933449c46479d68af457, type: 3}
-  firePoint: {fileID: 620061240}
-  bulletSpeed: 8
-  fireCooldown: 0.25
-  forwardKey: 264
-  backKey: 261
-  leftKey: 260
-  rightKey: 262
-  fireKey: 256
 --- !u!61 &677974319
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -956,6 +933,42 @@ MonoBehaviour:
   knockbackForce: 6
   spinSpeed: -1080
   stunTime: 0.6
+  angularDragWhileStunned: 3
+--- !u!114 &677974325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677974317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63a8cbf43a16b4b7cac8afb48be427ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TankAIController
+  target: {fileID: 1950196436}
+  desiredDistance: 6
+  moveSpeed: 3.8
+  turnSpeed: 220
+  wanderTurnSpeed: 120
+  bulletPrefab: {fileID: 7613528972467514935, guid: aed3b1e491b2933449c46479d68af457, type: 3}
+  firePoint: {fileID: 620061240}
+  bulletSpeed: 8
+  fireCooldown: 0.8
+  fireAngleTolerance: 10
+  sightRange: 20
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 8
+  selfHitIgnoreDistance: 0.6
+  decisionInterval: 0.4
+  obstacleFeelDistance: 1.2
+  strafeChance: 0.25
+  stuckCheckInterval: 0.25
+  stuckDistanceEpsilon: 0.03
+  unstickTime: 0.5
+  reverseSpeedFactor: 0.7
+  avoidRayDistance: 1.2
 --- !u!1 &753431903
 GameObject:
   m_ObjectHideFlags: 0
@@ -1551,16 +1564,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   moveSpeed: 4
-  turnSpeed: 180
+  turnSpeedKeyboard: 180
   bulletPrefab: {fileID: 7613528972467514935, guid: aed3b1e491b2933449c46479d68af457, type: 3}
   firePoint: {fileID: 1134365818}
   bulletSpeed: 8
-  fireCooldown: 0.25
+  fireCooldown: 0.8
   forwardKey: 119
   backKey: 115
   leftKey: 97
   rightKey: 100
   fireKey: 304
+  enableMouseControls: 1
+  mouseAimOverridesRotation: 1
+  moveMouseButton: 0
+  fireMouseButton: 1
 --- !u!61 &1950196433
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1737,6 +1754,7 @@ MonoBehaviour:
   knockbackForce: 6
   spinSpeed: -1080
   stunTime: 0.6
+  angularDragWhileStunned: 3
 --- !u!1 &1988625561
 GameObject:
   m_ObjectHideFlags: 0
