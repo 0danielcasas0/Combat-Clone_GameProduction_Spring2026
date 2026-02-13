@@ -4,8 +4,9 @@ using TMPro;
 public class GameManagerCombat : MonoBehaviour
 {
     public static GameManagerCombat Instance { get; private set; }
+    public GameObject winScreen;
 
-    [Header("Players")]
+	[Header("Players")]
     public GameObject player1;
     public GameObject player2;
 
@@ -14,9 +15,9 @@ public class GameManagerCombat : MonoBehaviour
 
     [Header("UI")]
     public TMP_Text scoreText;
-    public TMP_Text messageText; // optional (e.g., "P1 Wins!")
+    public TMP_Text winnerMessage;
 
-    int p1Score;
+	int p1Score;
     int p2Score;
     bool gameOver;
 
@@ -28,8 +29,9 @@ public class GameManagerCombat : MonoBehaviour
 
     void Start()
     {
-        if (messageText != null) messageText.text = "";
-        UpdateUI();
+        if (winnerMessage != null)
+            winnerMessage.text = "";
+		UpdateUI();
     }
 
     // Call this once per HIT that should score
@@ -48,7 +50,8 @@ public class GameManagerCombat : MonoBehaviour
         int winner = GetWinner();
         if (winner != 0)
         {
-            EndGame(winner);
+            ShowVictoryScreen();
+			EndGame(winner);
             return;
         }
 
@@ -66,8 +69,8 @@ public class GameManagerCombat : MonoBehaviour
     {
         gameOver = true;
 
-        if (messageText != null)
-            messageText.text = $"P{winnerPlayerId} Wins!";
+        if (winnerMessage != null)
+            winnerMessage.text = $"PLAYER {winnerPlayerId} WINS!";
 
         DisableTankControls(player1);
         DisableTankControls(player2);
@@ -94,6 +97,10 @@ public class GameManagerCombat : MonoBehaviour
             ai.enabled = false;
     }
 
+    public void ShowVictoryScreen()
+    {
+        winScreen.SetActive(true);
+	}
 
     void UpdateUI()
     {
