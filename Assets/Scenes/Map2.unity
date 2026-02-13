@@ -6722,7 +6722,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1460966397}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0047bcef230b3b4d94157f6b1fd5e24, type: 3}
+  m_Script: {fileID: 11500000, guid: 80e438536b396cc469f6a0d213de9ac9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterLoader
   characterRenderer: {fileID: 93298083}
